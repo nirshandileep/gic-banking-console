@@ -1,7 +1,4 @@
-﻿using FluentValidation;
-using GIC.BankingApplication.Application.Commands;
-
-namespace GIC.BankingApplication.Application.Validators;
+﻿namespace GIC.BankingApplication.Application.Validators;
 
 public class CreateAccountCommandValidator : AbstractValidator<CreateAccountCommand>
 {

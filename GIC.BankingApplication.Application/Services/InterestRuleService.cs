@@ -1,6 +1,4 @@
 ﻿using GIC.BankingApplication.Application.Commands.InterestRule;
-using GIC.BankingApplication.Application.Queries.InterestRule;
-using MediatR;
 
 namespace GIC.BankingApplication.Application.Services;
 
@@ -8,14 +6,13 @@ public class InterestRuleService(IMediator mediator) : IInterestRuleService
 {
     private readonly IMediator _mediator = mediator;
 
-    public void DefineInterestRule(CreateInterestRuleRequestDto interestRule)
+    public async Task DefineInterestRule(CreateInterestRuleRequestDto interestRule)
     {
-        _mediator.Send(new CreateInterestRuleCommand(interestRule));
+        await _mediator.Send(new CreateInterestRuleCommand(interestRule));
     }
 
-    public IEnumerable<InterestRuleDto> GetAllInterestRules()
+    public async Task<IEnumerable<InterestRuleDto>> GetAllInterestRules()
     {
-        var interestRules = _mediator.Send(new GetAllInterestRulesQuery());
-        return interestRules.Result;
+        return await _mediator.Send(new GetAllInterestRulesQuery());
     }
 }

@@ -1,10 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.Extensions.Options;
-using System.Reflection;
-
-namespace GIC.BankingApplication.Infrastructure.Database;
+﻿namespace GIC.BankingApplication.Infrastructure.Database;
 
 public class BankingApplicationDbContext(IOptions<DatabaseSettings> dbSettings) : DbContext, IBankingApplicationDbContext
 {
@@ -25,11 +19,18 @@ public class BankingApplicationDbContext(IOptions<DatabaseSettings> dbSettings) 
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseNpgsql(_dbSettings.ConnectionString, npgsqlOptionsAction: sqlOptions =>
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Test")
             {
-                sqlOptions.MigrationsAssembly(typeof(BankingApplicationDbContext).GetTypeInfo().Assembly.GetName().Name);
-                sqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, _dbSettings.Schema);
-            }).UseSnakeCaseNamingConvention();
+                optionsBuilder.UseInMemoryDatabase("BankAppInMemoryTest");
+            }
+            else
+            {
+                optionsBuilder.UseNpgsql(_dbSettings.ConnectionString, npgsqlOptionsAction: sqlOptions =>
+                {
+                    sqlOptions.MigrationsAssembly(typeof(BankingApplicationDbContext).GetTypeInfo().Assembly.GetName().Name);
+                    sqlOptions.MigrationsHistoryTable(HistoryRepository.DefaultTableName, _dbSettings.Schema);
+                }).UseSnakeCaseNamingConvention();
+            }
         }
     }
 

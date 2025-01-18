@@ -1,8 +1,4 @@
-﻿using GIC.BankingApplication.Application.Infrastructure.Response;
-using GIC.BankingApplication.Application.Infrastructure.Validation;
-using GIC.BankingApplication.Infrastructure.Database;
-using MediatR;
-using System.Transactions;
+﻿using System.Transactions;
 
 namespace GIC.BankingApplication.Application.Infrastructure.MediatR;
 

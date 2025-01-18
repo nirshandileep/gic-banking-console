@@ -2,6 +2,6 @@
 
 public interface IInterestRuleService
 {
-    void DefineInterestRule(CreateInterestRuleRequestDto interestRule);
-    IEnumerable<InterestRuleDto> GetAllInterestRules();
+    Task DefineInterestRule(CreateInterestRuleRequestDto interestRule);
+    Task<IEnumerable<InterestRuleDto>> GetAllInterestRules();
 }

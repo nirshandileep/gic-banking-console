@@ -1,6 +1,4 @@
-﻿using GIC.BankingApplication.Domain.Enums;
-
-namespace GIC.BankingApplication.Application.Validators;
+﻿namespace GIC.BankingApplication.Application.Validators;
 
 public class CreateTransactionCommandValidator : AbstractValidator<CreateTransactionCommand>
 {

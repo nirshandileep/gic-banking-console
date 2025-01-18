@@ -1,5 +1,4 @@
-﻿using FluentValidation;
-using GIC.BankingApplication.Application.Extensions;
+﻿using GIC.BankingApplication.Application.Extensions;
 
 namespace GIC.BankingApplication.Application.Infrastructure.MediatR
 {

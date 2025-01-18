@@ -10,3 +10,8 @@ global using GIC.BankingApplication.Infrastructure.Database;
 global using GIC.BankingApplication.Infrastructure.Dtos;
 global using MediatR;
 global using Microsoft.Extensions.DependencyInjection;
+global using GIC.BankingApplication.Application.Extensions;
+global using GIC.BankingApplication.Application.Queries.Account;
+global using GIC.BankingApplication.Application.Queries.InterestRule;
+global using GIC.BankingApplication.Domain.Enums;
+global using System.Globalization;

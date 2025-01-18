@@ -1,4 +1,5 @@
-﻿using GIC.BankingApplication.Application.Extensions;
+﻿using FluentValidation;
+using GIC.BankingApplication.Application.Extensions;
 using GIC.BankingApplication.Application.Services;
 using GIC.BankingApplication.Infrastructure.Dtos;
 
@@ -11,7 +12,7 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
     private readonly IInterestRuleService _interestRuleService = interestRuleService;
     private readonly IStatementService _statementService = statementService;
 
-    public void ShowMainMenu()
+    public async Task ShowMainMenu()
     {
         bool exitRequested = false;
 
@@ -26,13 +27,13 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
                 switch (input)
                 {
                     case 'T':
-                        HandleInputTransactions();
+                        await HandleInputTransactions();
                         break;
                     case 'I':
-                        HandleDefineInterestRule();
+                        await HandleDefineInterestRule();
                         break;
                     case 'P':
-                        HandlePrintStatement();
+                        await HandlePrintStatement();
                         break;
                     case 'Q':
                         exitRequested = true;
@@ -61,7 +62,7 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
         Console.Write("> ");
     }
 
-    private async void HandleInputTransactions()
+    private async Task HandleInputTransactions()
     {
         Console.Clear();
 
@@ -88,7 +89,7 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
             try
             {
                 var dateInput = parts[0].ParseAsUtcDate();
-                var accountInput = parts[1];
+                var accountInput = parts[1].ToUpper();
                 var typeInput = parts[2].ToTransactionType();
                 var amountInput = decimal.Parse(parts[3]);
 
@@ -104,15 +105,18 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
                 var statement = await _statementService.GetAccountStatement(accountInput);
                 PrintStatement(statement);
             }
+            catch (ValidationException ex)
+            {
+                HandleValidationException(ex);
+            }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error processing transaction: {ex.Message}");
-                Console.ReadKey();
             }
         }
     }
 
-    private void HandleDefineInterestRule()
+    private async Task HandleDefineInterestRule()
     {
         Console.Clear();
 
@@ -135,7 +139,7 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
             }
 
             var dateInput = parts[0].ParseAsUtcDate();
-            var ruleId = parts[1];
+            var ruleId = parts[1].ToUpper();
             var rateInput = decimal.Parse(parts[2]);
 
             var interestRule = new CreateInterestRuleRequestDto
@@ -147,10 +151,14 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
 
             try
             {
-                _interestRuleService.DefineInterestRule(interestRule);
+                await _interestRuleService.DefineInterestRule(interestRule);
 
-                var rules = _interestRuleService.GetAllInterestRules();
+                var rules = await _interestRuleService.GetAllInterestRules();
                 PrintInterestRules(rules);
+            }
+            catch (ValidationException ex)
+            {
+                HandleValidationException(ex);
             }
             catch (Exception ex)
             {
@@ -159,7 +167,22 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
         }
     }
 
-    private async void HandlePrintStatement()
+    private void HandleValidationException(ValidationException ex)
+    {
+        if (ex.Errors.Any())
+        {
+            foreach (var error in ex.Errors)
+            {
+                Console.WriteLine($"{error}");
+            }
+        }
+        else
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private async Task HandlePrintStatement()
     {
         Console.Clear();
 
@@ -181,7 +204,7 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
                 continue;
             }
 
-            var accountInput = parts[0];
+            var accountInput = parts[0].ToUpper();
             var yearMonthInput = parts[1];
 
             try

@@ -1,8 +1,4 @@
-﻿using GIC.BankingApplication.Application.Commands.Account;
-using GIC.BankingApplication.Application.Extensions;
-using GIC.BankingApplication.Application.Queries.Account;
-
-namespace GIC.BankingApplication.Application.Services;
+﻿namespace GIC.BankingApplication.Application.Services;
 
 public class TransactionService(IMediator mediator) : ITransactionService
 {
@@ -11,9 +7,15 @@ public class TransactionService(IMediator mediator) : ITransactionService
     public async Task InputTransaction(CreateTransactionRequestDto transaction)
     {
         var account = await _mediator.Send(new GetAccountByNumberQuery(transaction.AccountNumber));
+        var newAccount = false;
 
         if (account == null)
         {
+            if (transaction.Type != TransactionType.Deposit)
+            {
+                throw new ValidationException("First transaction of the account should be a Deposit.");
+            }
+
             await _mediator.Send(new CreateAccountCommand(
                 new CreateAccountRequestDto
                 {
@@ -21,6 +23,7 @@ public class TransactionService(IMediator mediator) : ITransactionService
                     Balance = transaction.Amount
                 }));
 
+            newAccount = true;
             account = await _mediator.Send(new GetAccountByNumberQuery(transaction.AccountNumber));
         }
 
@@ -29,7 +32,15 @@ public class TransactionService(IMediator mediator) : ITransactionService
         transaction.AccountId = account.Id;
         transaction.TransactionId = nextTransactionId;
 
+        if (account.Balance.ApplyTransaction(new TransactionDto { Amount = transaction.Amount, Type = transaction.Type }) < 0)
+        {
+            throw new ValidationException($"Insufficient Account Balance to withdraw {transaction.Amount:F2}.");
+        }
+
         await _mediator.Send(new CreateTransactionCommand(transaction));
+
+        if (newAccount)
+            return;
 
         switch (transaction.Type)
         {

@@ -1,5 +1,4 @@
-﻿using Autofac.Core;
-using GIC.BankingApplication.Application.Config;
+﻿using GIC.BankingApplication.Application.Config;
 using GIC.BankingApplication.Application.Infrastructure.MediatR;
 using GIC.BankingApplication.Application.Services;
 using GIC.BankingApplication.ConsoleApp.Presentation;
@@ -24,8 +23,6 @@ var host = Host.CreateDefaultBuilder(args)
      })
     .ConfigureServices((hostContext, services) =>
     {
-        //services.Configure<DatabaseSettings>(hostContext.Configuration.GetSection("Database"));
-
         services.AddDbContext<BankingApplicationDbContext>();
         services.AddMediatR(cfg =>
         {
@@ -46,16 +43,11 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-//host.Services.MigrateDbContext<BankingApplicationDbContext>((context, services) =>
-//{
-//    new PointCastDbContextSeed().SeedAsync(context).Wait();
-//});
-
 using var scope = host.Services.CreateScope();
 
 var context = scope.ServiceProvider.GetService<BankingApplicationDbContext>();
 context.Database.Migrate();
 
 var menuHandler = scope.ServiceProvider.GetRequiredService<MenuHandler>();
-menuHandler.ShowMainMenu();
+await menuHandler.ShowMainMenu();
 

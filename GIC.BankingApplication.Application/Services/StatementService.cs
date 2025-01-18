@@ -1,10 +1,4 @@
-﻿using GIC.BankingApplication.Application.Extensions;
-using GIC.BankingApplication.Application.Queries.Account;
-using GIC.BankingApplication.Application.Queries.InterestRule;
-using GIC.BankingApplication.Domain.Enums;
-using System.Globalization;
-
-namespace GIC.BankingApplication.Application.Services;
+﻿namespace GIC.BankingApplication.Application.Services;
 
 public class StatementService(IMediator mediator) : IStatementService
 {
@@ -46,7 +40,7 @@ public class StatementService(IMediator mediator) : IStatementService
         var statementMonthTransactions = statementTransactions
             .Where(t => t.Date.Date >= startDate.Date && t.Date.Date <= endDate.Date)
             .OrderBy(t => t.Date)
-            .ThenBy(t => t.TxnId)
+            .ThenBy(t => t.Type)
             .ToList();
 
         var statementDto = new StatementDto
@@ -67,7 +61,7 @@ public class StatementService(IMediator mediator) : IStatementService
                     .ToList();
 
         var allRules = await _mediator.Send(new GetAllInterestRulesQuery());
-        var sortedRules = allRules.OrderBy(r => r.EffectiveDate).ToList();
+        var sortedRules = allRules.OrderBy(r => r.EffectiveDate).ThenBy(e => e.Id).ToList();
 
         var runningBalance = 0m;
         var statementTransactions = new List<StatementTransactionDto>();
@@ -145,7 +139,7 @@ public class StatementService(IMediator mediator) : IStatementService
             .Where(t => t.Date.Date <= upToDate.Date)
             .ToList();
 
-        relevantTxns.ForEach(tx => balance.ApplyTransaction(tx));
+        relevantTxns.ForEach(tx => balance = balance.ApplyTransaction(tx));
 
         return balance;
     }

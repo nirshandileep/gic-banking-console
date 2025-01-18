@@ -16,7 +16,7 @@ public class CreateInterestRuleCommandValidator : AbstractValidator<CreateIntere
 
         RuleFor(x => x.Request.Rate)
             .NotEmpty()
-            .WithMessage("Date is required");
+            .WithMessage("Rate is required");
 
         RuleFor(x => x.Request.Rate)
             .GreaterThan(0)
