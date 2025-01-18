@@ -1,0 +1,12 @@
+﻿global using FluentValidation;
+global using GIC.BankingApplication.Application.Commands;
+global using GIC.BankingApplication.Application.Commands.Account;
+global using GIC.BankingApplication.Application.Commands.Transaction;
+global using GIC.BankingApplication.Application.Infrastructure.MediatR;
+global using GIC.BankingApplication.Application.Infrastructure.Response;
+global using GIC.BankingApplication.Application.Infrastructure.Validation;
+global using GIC.BankingApplication.Application.Validators;
+global using GIC.BankingApplication.Infrastructure.Database;
+global using GIC.BankingApplication.Infrastructure.Dtos;
+global using MediatR;
+global using Microsoft.Extensions.DependencyInjection;
