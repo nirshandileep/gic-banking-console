@@ -1,6 +1,4 @@
-﻿using GIC.BankingApplication.Application.Extensions;
-
-namespace GIC.BankingApplication.Application.Infrastructure.MediatR
+﻿namespace GIC.BankingApplication.Application.Infrastructure.MediatR
 {
     public class ValidatorBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators)
    : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>

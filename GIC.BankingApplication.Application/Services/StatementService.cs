@@ -11,7 +11,7 @@ public class StatementService(IMediator mediator) : IStatementService
         var statement = new StatementDto
         {
             AccountNumber = accountNumber,
-            Transactions = account.Transactions.Select(e => new StatementTransactionDto
+            Transactions = account?.Transactions.Select(e => new StatementTransactionDto
             {
                 Date = e.Date,
                 TxnId = e.TransactionId,
@@ -61,7 +61,7 @@ public class StatementService(IMediator mediator) : IStatementService
                     .ToList();
 
         var allRules = await _mediator.Send(new GetAllInterestRulesQuery());
-        var sortedRules = allRules.OrderBy(r => r.EffectiveDate).ThenBy(e => e.Id).ToList();
+        var sortedRules = allRules.OrderBy(r => r.Date).ThenBy(e => e.Id).ToList();
 
         var runningBalance = 0m;
         var statementTransactions = new List<StatementTransactionDto>();
@@ -100,7 +100,7 @@ public class StatementService(IMediator mediator) : IStatementService
         return (statementTransactions, runningBalance, totalMonthInterest);
     }
 
-    private void AddInteresetTransactionLineItem(DateTime endDate, decimal runningBalance, List<StatementTransactionDto> statementTransactions, 
+    private static void AddInteresetTransactionLineItem(DateTime endDate, decimal runningBalance, List<StatementTransactionDto> statementTransactions, 
         decimal totalMonthInterest)
     {
         decimal monthlyInterest = Math.Round(totalMonthInterest / 365m, 2, MidpointRounding.AwayFromZero);
@@ -132,7 +132,7 @@ public class StatementService(IMediator mediator) : IStatementService
         return (startDate, endDate);
     }
 
-    private decimal CalculateBalanceUpToDate(List<TransactionDto> allTxns, DateTime upToDate)
+    private static decimal CalculateBalanceUpToDate(List<TransactionDto> allTxns, DateTime upToDate)
     {
         decimal balance = 0m;
         var relevantTxns = allTxns
@@ -144,13 +144,13 @@ public class StatementService(IMediator mediator) : IStatementService
         return balance;
     }
 
-    private InterestRuleDto GetActiveInterestRule(List<InterestRuleDto> sortedRules, DateTime currentDay)
+    private static InterestRuleDto GetActiveInterestRule(List<InterestRuleDto> sortedRules, DateTime currentDay)
     {
         InterestRuleDto activeRule = null;
 
         foreach (var rule in sortedRules)
         {
-            if (rule.EffectiveDate.Date <= currentDay.Date)
+            if (rule.Date.Date <= currentDay.Date)
             {
                 activeRule = rule;
             }

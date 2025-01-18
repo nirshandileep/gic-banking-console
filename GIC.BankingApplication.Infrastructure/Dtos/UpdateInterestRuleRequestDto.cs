@@ -1,6 +1,6 @@
 ﻿namespace GIC.BankingApplication.Infrastructure.Dtos;
 
-public class InterestRuleDto
+public class UpdateInterestRuleRequestDto
 {
     public int Id { get; set; }
     public DateTime Date { get; set; }

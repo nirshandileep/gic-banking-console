@@ -16,4 +16,16 @@ public class InterestRule
             Rate = rate
         };
     }
+
+    public InterestRule SetRule(string ruleId)
+    {
+        RuleId = ruleId;
+        return this;
+    }
+
+    public InterestRule SetRate(decimal rate)
+    {
+        Rate = rate;
+        return this;
+    }
 }

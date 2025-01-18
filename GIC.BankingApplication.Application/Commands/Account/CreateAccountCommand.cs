@@ -1,4 +1,4 @@
-﻿namespace GIC.BankingApplication.Application.Commands;
+﻿namespace GIC.BankingApplication.Application.Commands.Account;
 
 public record CreateAccountCommand(CreateAccountRequestDto Request) : CommandRequest;
 

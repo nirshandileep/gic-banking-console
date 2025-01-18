@@ -2,10 +2,14 @@
 
 namespace GIC.BankingApplication.Application.Validators;
 
-public class CreateInterestRuleCommandValidator : AbstractValidator<CreateInterestRuleCommand>
+public class UpdateInterestRuleCommandValidator : AbstractValidator<UpdateInterestRuleCommand>
 {
-    public CreateInterestRuleCommandValidator()
+    public UpdateInterestRuleCommandValidator()
     {
+        RuleFor(x => x.Request.Id)
+            .NotEmpty()
+            .WithMessage("Id is required");
+
         RuleFor(x => x.Request.RuleId)
             .NotEmpty()
             .WithMessage("RuleId is required");

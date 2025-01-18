@@ -9,6 +9,7 @@ public static class IoC
         services.AddSingleton<IValidator<CreateAccountCommand>, CreateAccountCommandValidator>();
         services.AddSingleton<IValidator<UpdateAccountCommand>, UpdateAccountCommandValidator>();
         services.AddSingleton<IValidator<CreateInterestRuleCommand>, CreateInterestRuleCommandValidator>();
+        services.AddSingleton<IValidator<UpdateInterestRuleCommand>, UpdateInterestRuleCommandValidator>();
         services.AddSingleton<IValidator<CreateTransactionCommand>, CreateTransactionCommandValidator>();
     }
 }

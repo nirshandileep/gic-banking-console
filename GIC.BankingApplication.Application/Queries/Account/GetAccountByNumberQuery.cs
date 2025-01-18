@@ -2,18 +2,18 @@
 
 namespace GIC.BankingApplication.Application.Queries.Account
 {
-    public record GetAccountByNumberQuery(string AccountNumber) : IRequest<AccountDto>;
+    public record GetAccountByNumberQuery(string AccountNumber) : IRequest<AccountDto?>;
 
-    public class GetAccountByIdQueryHandler(IBankingApplicationDbContext dbContext) : IRequestHandler<GetAccountByNumberQuery, AccountDto>
+    public class GetAccountByIdQueryHandler(IBankingApplicationDbContext dbContext) : IRequestHandler<GetAccountByNumberQuery, AccountDto?>
     {
         private readonly IBankingApplicationDbContext _dbContext = dbContext;
 
-        public async Task<AccountDto> Handle(GetAccountByNumberQuery request, CancellationToken cancellationToken)
+        public async Task<AccountDto?> Handle(GetAccountByNumberQuery request, CancellationToken cancellationToken)
         {
             var account = await _dbContext.DbSet<Domain.Models.Account>()
                 .Where(e => e.AccountNumber == request.AccountNumber)
                 .Include(e => e.Transactions)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(cancellationToken);
 
             if (account == null)
                 return null;

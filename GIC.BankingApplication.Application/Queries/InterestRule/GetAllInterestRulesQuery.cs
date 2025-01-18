@@ -18,10 +18,11 @@ namespace GIC.BankingApplication.Application.Queries.InterestRule
 
             return await query.Select(e => new InterestRuleDto
             {
-                EffectiveDate = e.Date,
+                Id = e.Id,
+                Date = e.Date,
                 Rate = e.Rate,
                 RuleId = e.RuleId,
-            }).ToListAsync();
+            }).ToListAsync(cancellationToken);
         }
     }
 }

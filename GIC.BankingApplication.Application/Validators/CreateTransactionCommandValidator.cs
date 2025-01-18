@@ -23,5 +23,9 @@ public class CreateTransactionCommandValidator : AbstractValidator<CreateTransac
         RuleFor(x => x.Request.Amount)
             .GreaterThan(0)
             .WithMessage("Amount must be greater than 0");
+
+        RuleFor(x => x.Request.Type)
+            .Must(type => type == TransactionType.Deposit || type == TransactionType.Withdrawal)
+            .WithMessage("Type is invalid. Only Deposit and Withdrawal transactions are allowed.");
     }
 }

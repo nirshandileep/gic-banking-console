@@ -1,4 +1,6 @@
 ﻿using GIC.BankingApplication.Application.Config;
+using GIC.BankingApplication.Application.Infrastructure.MediatR;
+using GIC.BankingApplication.Application.Services;
 using GIC.BankingApplication.Infrastructure.Config;
 using GIC.BankingApplication.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
@@ -15,11 +17,9 @@ public class TestFixture : IDisposable
     {
         var services = new ServiceCollection();
 
-        // 2. Build an in-memory configuration (mock config)
         var testConfig = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string>
             {
-                // Adjust as needed for your environment
                 ["Database:Host"] = "localhost",
                 ["Database:Port"] = "5432",
                 ["Database:Username"] = "postgres",
@@ -29,24 +29,24 @@ public class TestFixture : IDisposable
             })
             .Build();
 
-        // 3. Register the in-memory database for EF Core
         services.AddDbContext<BankingApplicationDbContext>(options =>
         {
             options.UseInMemoryDatabase("BankAppInMemoryTest");
         });
-        
+
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Test");
 
-        // 4. Register MediatR, so it can discover command/query handlers
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssemblyContaining(typeof(Application.Config.IoC));
+            cfg.AddOpenBehavior(typeof(ValidatorBehavior<,>));
         });
 
-        // 5. Register your application and infrastructure
         services.RegisterApplication();
         services.RegisterInfrastructure(testConfig);
-        //services.AddScoped<IBankingApplicationDbContext, BankingApplicationDbContext>();
+
+        services.AddTransient<ITransactionService, TransactionService>();
+        services.AddTransient<IInterestRuleService, InterestRuleService>();
 
         ServiceProvider = services.BuildServiceProvider();
 

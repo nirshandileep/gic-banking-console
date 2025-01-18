@@ -5,7 +5,7 @@ public class UpdateAccountCommandValidator : AbstractValidator<UpdateAccountComm
     public UpdateAccountCommandValidator()
     {
         RuleFor(x => x.Request.Balance)
-            .GreaterThan(0)
-            .WithMessage("Balance should be greater than 0");
+            .GreaterThanOrEqualTo(0)
+            .WithMessage("Balance cannot be negative");
     }
 }

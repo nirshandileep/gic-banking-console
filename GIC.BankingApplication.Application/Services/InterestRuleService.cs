@@ -8,7 +8,24 @@ public class InterestRuleService(IMediator mediator) : IInterestRuleService
 
     public async Task DefineInterestRule(CreateInterestRuleRequestDto interestRule)
     {
-        await _mediator.Send(new CreateInterestRuleCommand(interestRule));
+        var existingRule = await _mediator.Send(new GetInterestRuleByDateQuery(interestRule.Date));
+
+        if (existingRule != null)
+        {
+            var updateRuleCommand = new UpdateInterestRuleCommand(
+                new UpdateInterestRuleRequestDto
+                {
+                    Id = existingRule.Id,
+                    Date = interestRule.Date,
+                    RuleId = interestRule.RuleId,
+                    Rate = interestRule.Rate
+                });
+            await _mediator.Send(updateRuleCommand);
+        }
+        else
+        {
+            await _mediator.Send(new CreateInterestRuleCommand(interestRule));
+        }
     }
 
     public async Task<IEnumerable<InterestRuleDto>> GetAllInterestRules()

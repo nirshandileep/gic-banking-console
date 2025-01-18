@@ -269,7 +269,7 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
         Console.WriteLine("| Date     | RuleId | Rate (%) |");
         foreach (var rule in rules)
         {
-            Console.WriteLine($"| {rule.EffectiveDate.ToYYYYMMddFormat()} | {rule.RuleId,-6} | {rule.Rate,8:F2} |");
+            Console.WriteLine($"| {rule.Date.ToYYYYMMddFormat()} | {rule.RuleId,-6} | {rule.Rate,8:F2} |");
         }
         Console.WriteLine();
     }
