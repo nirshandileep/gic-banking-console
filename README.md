@@ -8,7 +8,7 @@ This project is a console-based banking application built using modern technolog
 ## Technologies and Architecture
 
 1. **Technologies Used**:
-   - **.NET Core 7**: Framework for building the application.
+   - **.NET Core 8**: Framework for building the application.
    - **PostgreSQL**: Relational database for storing account, transaction, and interest rule data.
    - **Entity Framework Core**: Object-relational mapping (ORM) tool for database interactions.
    - **MediatR**: Implements the CQRS pattern by separating queries and commands.
@@ -30,7 +30,7 @@ This project is a console-based banking application built using modern technolog
 ### Prerequisites
 
 1. **Install Required Software**:
-   - .NET SDK 7.0 or later.
+   - .NET SDK 8.0 or later.
    - PostgreSQL (local instance).
    - Command-line tools (PowerShell, Command Prompt, or Bash).
 
