@@ -17,16 +17,18 @@ public class TestFixture : IDisposable
     {
         var services = new ServiceCollection();
 
+        var configValues = new Dictionary<string, string>
+        {
+            ["Database:Host"] = "localhost",
+            ["Database:Port"] = "5432",
+            ["Database:Username"] = "postgres",
+            ["Database:Password"] = "1234",
+            ["Database:Database"] = "bankingapp",
+            ["Database:Schema"] = "public"
+        };
+
         var testConfig = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string>
-            {
-                ["Database:Host"] = "localhost",
-                ["Database:Port"] = "5432",
-                ["Database:Username"] = "postgres",
-                ["Database:Password"] = "1234",
-                ["Database:Database"] = "bankingapp",
-                ["Database:Schema"] = "public"
-            })
+            .AddInMemoryCollection(configValues)
             .Build();
 
         services.AddDbContext<BankingApplicationDbContext>(options =>
@@ -50,7 +52,6 @@ public class TestFixture : IDisposable
         services.AddTransient<IStatementService, StatementService>();
 
         ServiceProvider = services.BuildServiceProvider();
-
     }
 
     public void Dispose()

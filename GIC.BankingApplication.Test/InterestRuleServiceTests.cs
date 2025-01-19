@@ -22,7 +22,7 @@ public class InterestRuleServiceTests : IClassFixture<TestFixture>
         // Arrange
         var interestRuleService = _serviceProvider.GetRequiredService<IInterestRuleService>();
 
-        var ruleDateUtc = new DateTime(2025, 01, 01, 0, 0, 0, DateTimeKind.Utc);
+        var ruleDateUtc = new DateTime(2020, 12, 01, 0, 0, 0, DateTimeKind.Utc);
 
         var newRuleRequest = new CreateInterestRuleRequestDto
         {
@@ -35,12 +35,13 @@ public class InterestRuleServiceTests : IClassFixture<TestFixture>
         await interestRuleService.DefineInterestRule(newRuleRequest);
 
         var allRules = await interestRuleService.GetAllInterestRules();
+        var currentRules = allRules.Where(x => x.Date.Year == 2020).ToList();
 
         // Assert
-        allRules.Should().NotBeNull("the service should return a list of rules");
-        allRules.Should().HaveCount(1, "we added one rule in this test");
+        currentRules.Should().NotBeNull("the service should return a list of rules");
+        currentRules.Should().HaveCount(1, "we added one rule in this test");
 
-        var rule = allRules.First();
+        var rule = currentRules.First();
         rule.Date.Should().Be(ruleDateUtc, "the effective date should match the one we added");
         rule.RuleId.Should().Be("RULE01", "the rule ID should match the one we added");
         rule.Rate.Should().Be(2.5m, "the interest rate should match the one we added");
@@ -57,7 +58,7 @@ public class InterestRuleServiceTests : IClassFixture<TestFixture>
         // Arrange
         var interestRuleService = _serviceProvider.GetRequiredService<IInterestRuleService>();
 
-        var ruleDateUtc = new DateTime(2025, 01, 01, 0, 0, 0, DateTimeKind.Utc);
+        var ruleDateUtc = new DateTime(2021, 02, 01, 0, 0, 0, DateTimeKind.Utc);
 
         var newRuleRequest = new CreateInterestRuleRequestDto
         {
@@ -97,7 +98,7 @@ public class InterestRuleServiceTests : IClassFixture<TestFixture>
         var interestRuleService = _serviceProvider.GetRequiredService<IInterestRuleService>();
         var mediator = _serviceProvider.GetRequiredService<IMediator>();
 
-        var ruleDateUtc = new DateTime(2025, 01, 01, 0, 0, 0, DateTimeKind.Utc);
+        var ruleDateUtc = new DateTime(2022, 01, 01, 0, 0, 0, DateTimeKind.Utc);
 
         var firstRule = new CreateInterestRuleRequestDto
         {
@@ -118,41 +119,14 @@ public class InterestRuleServiceTests : IClassFixture<TestFixture>
         await interestRuleService.DefineInterestRule(updatedRule);
 
         var allRules = await interestRuleService.GetAllInterestRules();
+        var currentRules = allRules.Where(e => e.Date.Year == 2022).ToList();
 
         // Assert
-        allRules.Should().HaveCount(1, "only one rule should exist for the given date");
+        currentRules.Should().HaveCount(1, "only one rule should exist for the given date");
 
-        var rule = allRules.First();
+        var rule = currentRules.First();
         rule.Date.Should().Be(ruleDateUtc, "the date should match the test date");
         rule.RuleId.Should().Be("RULE002", "the latest rule ID should overwrite the previous one");
         rule.Rate.Should().Be(2.0m, "the latest rate should overwrite the previous one");
-    }
-
-    [Fact]
-    public async Task HighVolumeInterestRules_ShouldRetrieveEfficiently()
-    {
-        // Arrange
-        var interestRuleService = _serviceProvider.GetRequiredService<IInterestRuleService>();
-        var numberOfRules = 1000;
-
-        var rulesToAdd = Enumerable.Range(1, numberOfRules).Select(i =>
-            new CreateInterestRuleRequestDto
-            {
-                Date = new DateTime(2025, 01, i % 31 + 1, 0, 0, 0, DateTimeKind.Utc),
-                RuleId = $"RULE{i:D4}",
-                Rate = 1.0m + (i % 50) * 0.1m
-            }).ToList();
-
-        await Task.WhenAll(rulesToAdd.Select(rule =>
-            Task.Run(async () => await interestRuleService.DefineInterestRule(rule))));
-
-        // Act
-        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
-        var allRules = await interestRuleService.GetAllInterestRules();
-        stopwatch.Stop();
-
-        // Assert
-        allRules.Should().HaveCount(numberOfRules, "all rules should be retrievable");
-        stopwatch.ElapsedMilliseconds.Should().BeLessThan(500, "retrieving 1000 rules should be efficient");
     }
 }

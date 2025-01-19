@@ -92,7 +92,7 @@ public class StatementService(IMediator mediator) : IStatementService
             var rule = GetActiveInterestRule(sortedRules, currentDay);
             if (rule != null)
             {
-                decimal dailyInterest = runningBalance * (rule.Rate / 100m);
+                decimal dailyInterest = runningBalance * (rule.Rate / 100m) / 365m;
                 totalMonthInterest += dailyInterest;
             }
         }
@@ -103,7 +103,7 @@ public class StatementService(IMediator mediator) : IStatementService
     private static void AddInteresetTransactionLineItem(DateTime endDate, decimal runningBalance, List<StatementTransactionDto> statementTransactions, 
         decimal totalMonthInterest)
     {
-        decimal monthlyInterest = Math.Round(totalMonthInterest / 365m, 2, MidpointRounding.AwayFromZero);
+        decimal monthlyInterest = Math.Round(totalMonthInterest, 2, MidpointRounding.AwayFromZero);
         if (monthlyInterest != 0)
         {
             runningBalance += monthlyInterest;
