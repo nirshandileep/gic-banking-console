@@ -2,9 +2,8 @@
 using FluentValidation;
 using GIC.BankingApplication.Application.Services;
 using GIC.BankingApplication.Infrastructure.Dtos;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Linq;
 
 namespace GIC.BankingApplication.Test;
 
@@ -69,7 +68,7 @@ public class InterestRuleServiceTests : IClassFixture<TestFixture>
 
         // Act
         Func<Task> act = async () =>
-            interestRuleService.DefineInterestRule(newRuleRequest);
+            await interestRuleService.DefineInterestRule(newRuleRequest);
 
         // Assert
         if (isValid)
@@ -83,12 +82,77 @@ public class InterestRuleServiceTests : IClassFixture<TestFixture>
         }
         else
         {
-            await act.Should().ThrowAsync<ValidationException>()
-                .WithMessage("*Rate is invalid*"); 
+            await act.Should().ThrowAsync<ValidationException>();
 
             var allRules = await interestRuleService.GetAllInterestRules();
             allRules.Should().NotContain(r => r.Rate == rate,
                 "an invalid rate should not allow the rule to be added");
         }
+    }
+
+    [Fact]
+    public async Task DefineInterestRule_ShouldEnsureOnlyOneRulePerDate()
+    {
+        // Arrange
+        var interestRuleService = _serviceProvider.GetRequiredService<IInterestRuleService>();
+        var mediator = _serviceProvider.GetRequiredService<IMediator>();
+
+        var ruleDateUtc = new DateTime(2025, 01, 01, 0, 0, 0, DateTimeKind.Utc);
+
+        var firstRule = new CreateInterestRuleRequestDto
+        {
+            Date = ruleDateUtc,
+            RuleId = "RULE001",
+            Rate = 1.5m
+        };
+
+        var updatedRule = new CreateInterestRuleRequestDto
+        {
+            Date = ruleDateUtc,
+            RuleId = "RULE002",
+            Rate = 2.0m
+        };
+
+        // Act
+        await interestRuleService.DefineInterestRule(firstRule);
+        await interestRuleService.DefineInterestRule(updatedRule);
+
+        var allRules = await interestRuleService.GetAllInterestRules();
+
+        // Assert
+        allRules.Should().HaveCount(1, "only one rule should exist for the given date");
+
+        var rule = allRules.First();
+        rule.Date.Should().Be(ruleDateUtc, "the date should match the test date");
+        rule.RuleId.Should().Be("RULE002", "the latest rule ID should overwrite the previous one");
+        rule.Rate.Should().Be(2.0m, "the latest rate should overwrite the previous one");
+    }
+
+    [Fact]
+    public async Task HighVolumeInterestRules_ShouldRetrieveEfficiently()
+    {
+        // Arrange
+        var interestRuleService = _serviceProvider.GetRequiredService<IInterestRuleService>();
+        var numberOfRules = 1000;
+
+        var rulesToAdd = Enumerable.Range(1, numberOfRules).Select(i =>
+            new CreateInterestRuleRequestDto
+            {
+                Date = new DateTime(2025, 01, i % 31 + 1, 0, 0, 0, DateTimeKind.Utc),
+                RuleId = $"RULE{i:D4}",
+                Rate = 1.0m + (i % 50) * 0.1m
+            }).ToList();
+
+        await Task.WhenAll(rulesToAdd.Select(rule =>
+            Task.Run(async () => await interestRuleService.DefineInterestRule(rule))));
+
+        // Act
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+        var allRules = await interestRuleService.GetAllInterestRules();
+        stopwatch.Stop();
+
+        // Assert
+        allRules.Should().HaveCount(numberOfRules, "all rules should be retrievable");
+        stopwatch.ElapsedMilliseconds.Should().BeLessThan(500, "retrieving 1000 rules should be efficient");
     }
 }

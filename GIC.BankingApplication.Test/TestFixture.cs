@@ -47,6 +47,7 @@ public class TestFixture : IDisposable
 
         services.AddTransient<ITransactionService, TransactionService>();
         services.AddTransient<IInterestRuleService, InterestRuleService>();
+        services.AddTransient<IStatementService, StatementService>();
 
         ServiceProvider = services.BuildServiceProvider();
 
