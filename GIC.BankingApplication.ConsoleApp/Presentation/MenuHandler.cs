@@ -2,18 +2,23 @@
 using GIC.BankingApplication.Application.Extensions;
 using GIC.BankingApplication.Application.Services;
 using GIC.BankingApplication.Infrastructure.Dtos;
+using Microsoft.Extensions.Logging;
 
 namespace GIC.BankingApplication.ConsoleApp.Presentation;
 
 public class MenuHandler(ITransactionService transactionService, IInterestRuleService interestRuleService,
-    IStatementService statementService)
+    IStatementService statementService, ILogger<MenuHandler> logger)
 {
     private readonly ITransactionService _transactionService = transactionService;
     private readonly IInterestRuleService _interestRuleService = interestRuleService;
     private readonly IStatementService _statementService = statementService;
+    private readonly ILogger<MenuHandler> _logger = logger;
 
     public async Task ShowMainMenu()
     {
+        _logger.LogInformation("Application started successfully.");
+        _logger.LogError("An error occurred during execution.");
+
         bool exitRequested = false;
 
         while (!exitRequested)
@@ -47,6 +52,7 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
+                _logger.LogError(ex, "An error occurred while processing the menu.");
             }
         }
     }
@@ -112,6 +118,7 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
             catch (Exception ex)
             {
                 Console.WriteLine($"Error processing transaction: {ex.Message}");
+                _logger.LogError(ex, "Error processing transaction.");
             }
         }
     }
@@ -163,6 +170,7 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
             catch (Exception ex)
             {
                 Console.WriteLine($"Error defining interest rule: {ex.Message}");
+                _logger.LogError(ex, "Error defining interest rule.");
             }
         }
     }
@@ -174,11 +182,13 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
             foreach (var error in ex.Errors)
             {
                 Console.WriteLine($"{error}");
+                _logger.LogError(ex, "Validation Exception");
             }
         }
         else
         {
             Console.WriteLine(ex.Message);
+            _logger.LogError(ex, "Validation Exception");
         }
     }
 
@@ -215,6 +225,7 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
             catch (Exception ex)
             {
                 Console.WriteLine($"Error printing statement: {ex.Message}");
+                _logger.LogError(ex, "Error printing statement");
             }
         }
     }

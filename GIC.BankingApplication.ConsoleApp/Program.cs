@@ -8,18 +8,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-
+using Serilog;
 
 var host = Host.CreateDefaultBuilder(args)
      .ConfigureAppConfiguration((hostingContext, config) =>
      {
          config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
      })
-     .ConfigureLogging((hostingContext, logging) =>
+     .UseSerilog((context, services, loggerConfiguration) =>
      {
-         logging.AddConsole();
-         logging.SetMinimumLevel(LogLevel.Information);
+         loggerConfiguration
+             .ReadFrom.Configuration(context.Configuration)
+             .Enrich.FromLogContext();
      })
     .ConfigureServices((hostContext, services) =>
     {
@@ -27,7 +27,6 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssemblyContaining(typeof(GIC.BankingApplication.Application.Config.IoC));
-            //cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
             cfg.AddOpenBehavior(typeof(ValidatorBehavior<,>));
         });
 
