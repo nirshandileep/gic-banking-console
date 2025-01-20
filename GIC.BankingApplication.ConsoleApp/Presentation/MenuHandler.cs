@@ -51,8 +51,7 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                _logger.LogError(ex, "An error occurred while processing the menu.");
+                HandleException("An error occurred while processing the menu.", ex);
             }
         }
     }
@@ -117,8 +116,7 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error processing transaction: {ex.Message}");
-                _logger.LogError(ex, "Error processing transaction.");
+                HandleException("Error processing transaction:", ex);
             }
         }
     }
@@ -169,14 +167,25 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error defining interest rule: {ex.Message}");
-                _logger.LogError(ex, "Error defining interest rule.");
+                HandleException("Error defining interest rule:", ex);
             }
         }
     }
 
+    private void HandleException(string description, Exception ex)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+
+        Console.WriteLine($"{description} {ex.Message}");
+        _logger.LogError(ex, description);
+
+        Console.ResetColor();
+    }
+
     private void HandleValidationException(ValidationException ex)
     {
+        Console.ForegroundColor = ConsoleColor.Red;
+
         if (ex.Errors.Any())
         {
             foreach (var error in ex.Errors)
@@ -190,6 +199,8 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
             Console.WriteLine(ex.Message);
             _logger.LogError(ex, "Validation Exception");
         }
+
+        Console.ResetColor();
     }
 
     private async Task HandlePrintStatement()
@@ -224,8 +235,7 @@ public class MenuHandler(ITransactionService transactionService, IInterestRuleSe
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error printing statement: {ex.Message}");
-                _logger.LogError(ex, "Error printing statement");
+                HandleException("Error printing statement", ex);
             }
         }
     }
